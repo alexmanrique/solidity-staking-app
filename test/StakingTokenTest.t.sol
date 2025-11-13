@@ -1,0 +1,35 @@
+// SPDX-License-Identifier: UNLICENSED
+pragma solidity ^0.8.30;
+
+import "forge-std/Test.sol";
+import "../src/StakingToken.sol";
+import "../lib/openzeppelin-contracts/contracts/token/ERC20/ERC20.sol";
+
+contract StakingTokenTest is Test {
+
+   StakingToken stakingToken;
+   string name_ = "Staking Token";
+   string symbol_ = "STK";
+   address randomUser = vm.addr(1);
+
+   function setUp() public{
+       stakingToken = new StakingToken(name_, symbol_);
+   }
+
+   function testStakingTokenMintsCorrectly() public {
+       
+       uint256 amount_ = 1 ether;
+       
+       vm.startPrank(randomUser);
+       // Token balance previous 
+       uint256 balanceBefore_ = IERC20(address(stakingToken)).balanceOf(randomUser);
+       stakingToken.mint(amount_);
+       
+       // Token balance after 
+       uint256 balanceAfter_ = IERC20(address(stakingToken)).balanceOf(randomUser);
+       
+       assert(balanceAfter_ - balanceBefore_ == amount_);
+       vm.stopPrank();
+   }
+
+}
