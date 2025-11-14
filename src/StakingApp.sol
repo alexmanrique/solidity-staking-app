@@ -27,10 +27,6 @@ contract StakingApp is Ownable {
     rewardPerPeriod = rewardPerPeriod_;
  } 
 
- function changeStakingPeriod(uint256 newStakingPeriod) external onlyOwner {
-    stakingPeriod = newStakingPeriod;
-    emit ChangedStakingPeriod(newStakingPeriod);
- } 
 
  function depositTokens(uint256 tokenAmountToDeposit_) external {
     require(tokenAmountToDeposit_ == fixedStakingAmount, "Deposit amount must be equal to fixed staking amount");
@@ -74,6 +70,11 @@ contract StakingApp is Ownable {
     require(success, "Reward transfer failed");
     // Reward calculation logic to be implemented
  }
+
+  function changeStakingPeriod(uint256 newStakingPeriod_) external onlyOwner {
+    stakingPeriod = newStakingPeriod_;
+    emit ChangedStakingPeriod(newStakingPeriod_);
+ } 
 
 
 

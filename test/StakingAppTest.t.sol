@@ -11,12 +11,16 @@ contract StakingAppTest is Test {
     StakingApp stakingApp;
     string name_ = "Staking Token";
     string symbol_ = "STK";
-    address randomUser = vm.addr(1);
+    uint256 stakingPeriod_ = 100000000000000; // 30 days
+    uint256 fixedStakingAmount_ = 100 ether;  
+    uint256 rewardPerPeriod_ = 5 ether; 
+    address randomUser = vm.addr(2);
+    address owner_ = vm.addr(1);
   
   
   function setUp() public {
      stakingToken = new StakingToken(name_, symbol_);   
-     stakingApp = new StakingApp(address(stakingToken), address(this), 30 days, 100 ether, 5 ether); 
+     stakingApp = new StakingApp(address(stakingToken), owner_, stakingPeriod_, fixedStakingAmount_, rewardPerPeriod_); 
   }
 
   function testStakingTokenCorrectlyDeployed() public view {
@@ -27,4 +31,31 @@ contract StakingAppTest is Test {
       assert(address(stakingApp) != address(0));
   }
 
+  function testShouldRevertIfNotOwnerTriesToChangeStakingPeriod() public {  
+      vm.startPrank(randomUser);
+      uint256 newStakingPeriod = 60 days;
+      vm.expectRevert();
+      stakingApp.changeStakingPeriod(newStakingPeriod);
+      vm.stopPrank();
+  }
+
+  function testShouldChangeStakingPeriod() public {
+    vm.startPrank(owner_);
+    uint256 newStakingPeriod = 60 days;
+    stakingApp.changeStakingPeriod(newStakingPeriod);
+    assert(stakingApp.stakingPeriod() == newStakingPeriod);
+    vm.stopPrank();
+  }
+
+  function testContractReceiveEtherCorrectly() public {
+    vm.startPrank(randomUser);
+    uint256 amount = 1 ether;
+    vm.deal(randomUser, amount);
+    uint256 balanceBefore = address(stakingApp).balance;
+    (bool success,)= address(stakingApp).call{value:amount}("");
+    uint256 balanceAfter = address(stakingApp).balance;
+    assert(balanceAfter - balanceBefore == amount);
+    assert(success);
+    vm.stopPrank();
+  }
 }
