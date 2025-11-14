@@ -68,10 +68,11 @@ contract StakingAppTest is Test {
 
     function testShouldDepositTokensCorrectly() public {
         vm.startPrank(randomUser);
-        vm.deal(randomUser, fixedStakingAmount_);
-        uint256 amount = fixedStakingAmount_;
-        stakingApp.depositTokens(amount);
+        uint256 amount_ = fixedStakingAmount_;
+        stakingToken.mint(amount_);
+        IERC20(address(stakingToken)).approve(address(stakingApp), amount_);
+        stakingApp.depositTokens(amount_);
+        assert(stakingApp.userBalance(randomUser) == amount_);
         vm.stopPrank();
-        assert(stakingApp.userBalance(randomUser) == amount);
     }
 }
